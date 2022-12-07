@@ -1,0 +1,17 @@
+{
+	"name": "com.gentlymadstudios.packagemanagertools",
+	"displayName": "Package Manager Tools",
+	"description": "This plugin resolves git dependencies in the package for Unity Package Manager.\nYou can use a git url as a package dependency!",
+	"version": "0.0.1",
+	"unity": "2022.2",
+	"license": "MIT",
+	"documentationUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/README.md",
+  	"changelogUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/CHANGELOG.md",
+  	"licensesUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/LICENSE.md",
+	"author": {
+		"name": "Gentlymad Studios",
+		"url": "https://gentlymadstudios.com",
+		"email": "team@gentlymadstudios.com"
+	},
+	"dependencies": {}
+}
