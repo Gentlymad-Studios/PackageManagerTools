@@ -10,3 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
+## [0.0.2] - 2022-12-07
+### Added
+- Added ability to manually update all git packages
+- Checked for package type, so we only operate on git packages
+

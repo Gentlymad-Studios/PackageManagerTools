@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,6 +10,10 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 namespace PackageManagerTools {
     [InitializeOnLoad]
     internal static class GitDependencyResolver {
+        private const string repoExtenstion = ".git";
+        private const string packageJson = "package.json";
+        private const string pathPartialToPackageJson = "/blob/master/" + packageJson;
+
         private const string logHeader = "<b><color=#2E8B57>"+nameof(GitDependencyResolver) +"</color></b> ";
 
         [System.Diagnostics.Conditional("TOOLS_DEBUG")]
@@ -28,27 +33,37 @@ namespace PackageManagerTools {
 
         [MenuItem("Tools/UpdateGitDependencies")]
         private static void UpdateGitDependencies() {
-            (new ListCommand(UpdateGitDependenciesForPackages)).Execute();
+            (new ListCommand(UpdateGitDependenciesForPackages)).Execute(); 
+        }
+         
+        public class MiniPackageInfo {
+            public string version;
         }
 
-        private static void UpdateGitDependenciesForPackages(List<ExtendedPackageInfo> packages) {
+        private static void UpdateGitDependenciesForPackages(List<AdvancedPackageInfo> packages) {
             List<string> packagesToAdd = new List<string>();
-            foreach (ExtendedPackageInfo package in packages) {
-                string[] internalVersion = package.version.Split(".");
+            string[] internalVersion;
+            foreach (AdvancedPackageInfo info in packages) {
 
-                string packageJsonUrl = package.documentationUrl.Replace("README.md", "package.json");
+                string gitUrl = info.main.packageId.Split("@")[1];
+                gitUrl = gitUrl.Substring(0,gitUrl.Length - 4);
+                string packageJsonUrl = gitUrl.Replace("github.com", "raw.githubusercontent.com");
+                packageJsonUrl += pathPartialToPackageJson.Replace("blob/", "");
+                internalVersion = info.main.version.Split(".");
+
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(packageJsonUrl);
                 request.Method = "GET";
                 request.ContentType = "application/json";
                 WebResponse response = request.GetResponse();
                 string responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                ExtendedPackageInfo remotePackageInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ExtendedPackageInfo>(responseString);
+                MiniPackageInfo remotePackageInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<MiniPackageInfo>(responseString);
 
                 string[] remoteVersion = remotePackageInfo.version.Split(".");
 
                 for(int i=0; i < 3; i++) {
                     if (int.Parse(remoteVersion[i]) > int.Parse(internalVersion[i])) {
-                        packagesToAdd.Add(package.documentationUrl.Replace("/blob/master/README.md",".git"));
+                        packagesToAdd.Add(gitUrl + repoExtenstion);
+                        UnityEngine.Debug.Log($"Package: [{info.main.name}] detected newer version on github! {info.main.version} < {remotePackageInfo.version}");
                         break;
                     }
                 }
@@ -59,13 +74,13 @@ namespace PackageManagerTools {
             }
         }
 
-        private static void AddDependenciesForPackages(List<ExtendedPackageInfo> packages) {
+        private static void AddDependenciesForPackages(List<AdvancedPackageInfo> packages) {
             List<string> packagesToAdd = new List<string>();
             
-            foreach (ExtendedPackageInfo package in packages) {
-                if (package.gitDependencies != null) {
-                    foreach (KeyValuePair<string, string> gitDependency in package.gitDependencies) {
-                        bool packageAlreadyPresent = packages.Any(x => x.name == gitDependency.Key);
+            foreach (AdvancedPackageInfo package in packages) {
+                if (package.custom.gitDependencies != null) {
+                    foreach (KeyValuePair<string, string> gitDependency in package.custom.gitDependencies) {
+                        bool packageAlreadyPresent = packages.Any(x => x.main.name == gitDependency.Key);
                         if (!packageAlreadyPresent && !packagesToAdd.Any(x => x == gitDependency.Value)) {
                             packagesToAdd.Add(gitDependency.Value);
                         }

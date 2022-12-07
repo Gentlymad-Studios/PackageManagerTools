@@ -8,12 +8,14 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace PackageManagerTools {
     internal class ListCommand {
+        private const string unitySpecificPackagePartial = "com.unity";
+        private const string packageJson = "package.json";
 
         private ListRequest request;
-        public Action<List<ExtendedPackageInfo>> OnPackageListRetrieved;
+        public Action<List<AdvancedPackageInfo>> OnPackageListRetrieved;
         public bool isExecuting = false;
 
-        public ListCommand(Action<List<ExtendedPackageInfo>> OnPackageListRetrieved) {
+        public ListCommand(Action<List<AdvancedPackageInfo>> OnPackageListRetrieved) {
             this.OnPackageListRetrieved = OnPackageListRetrieved;
         }
 
@@ -27,29 +29,27 @@ namespace PackageManagerTools {
 
         private void EditorTick() {
             if (request.IsCompleted) {
+                EditorApplication.update -= EditorTick;
+
                 if (request.Status == StatusCode.Success) {
                     if (request.Result != null) {
-                        List<ExtendedPackageInfo> extendedPackageInfos = new List<ExtendedPackageInfo>();
+
+                        List<AdvancedPackageInfo> packageInfos = new List<AdvancedPackageInfo>();
                         foreach(PackageInfo package in request.Result) {
                             //ignore all unity based packages, as we know those won't have git dependencies
-                            if (package.name.IndexOf("com.unity") != -1) {
+                            if (package.source != PackageSource.Git || package.name.IndexOf(unitySpecificPackagePartial) != -1) {
                                 continue;
                             }
-                            ExtendedPackageInfo extendedPackageInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ExtendedPackageInfo>(File.ReadAllText(Path.Combine(package.resolvedPath, "package.json")));
-                            extendedPackageInfo.name = package.name;
-                            extendedPackageInfo.version = package.version;
-                            extendedPackageInfo.documentationUrl = package.documentationUrl;
-                            extendedPackageInfos.Add(extendedPackageInfo);
+
+                            CustomPackageInfo extendedPackageInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomPackageInfo>(File.ReadAllText(Path.Combine(package.resolvedPath, packageJson)));
+                            packageInfos.Add(new AdvancedPackageInfo(package, extendedPackageInfo));
                         }
 
-                        OnPackageListRetrieved?.Invoke(extendedPackageInfos);
+                        OnPackageListRetrieved?.Invoke(packageInfos);
                     }
                 } else if (request.Status >= StatusCode.Failure) {
                     GitDependencyResolver.Log(request.Error.message);
                 }
-
-                isExecuting = false;
-                EditorApplication.update -= EditorTick;
             }
         }
     }
