@@ -9,7 +9,7 @@
 
 **This package makes some assumptions you should be aware of:**
 - There is no compatibility check for dependencies, the system will always initiate the download of the newest git dependency
-- Same is for update checks. The system will only look for the latest release and download the newest version.
+- Same for update checks. The system will only look for the latest release and download the newest version.
 
 **Installation**
 1. Add [https://github.com/Gentlymad-Studios/PackageManagerTools.git](https://github.com/Gentlymad-Studios/PackageManagerTools.git) as a git url to your unity project using the standard package manager
