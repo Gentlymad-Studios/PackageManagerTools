@@ -8,6 +8,7 @@
 	"documentationUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/README.md",
   	"changelogUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/CHANGELOG.md",
   	"licensesUrl": "https://github.com/Gentlymad-Studios/PackageManagerTools/blob/master/LICENSE.md",
+	"custom_packageJsonLink": "https://raw.githubusercontent.com/Gentlymad-Studios/PackageManagerTools/master/package.json",
 	"author": {
 		"name": "Gentlymad Studios",
 		"url": "https://gentlymadstudios.com",
