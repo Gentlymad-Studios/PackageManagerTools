@@ -1,6 +1,5 @@
 **Package Manager Tools** to automate some Unity package manager tasks and fill in some feature gaps.
 ![gitupdate](https://user-images.githubusercontent.com/530629/206590096-63bd0417-e6f9-43fd-bfdc-3481455abebb.png)
-
 *Picture of the git update window that lists any outstanding git package updates.*
 
 **Current Features**
