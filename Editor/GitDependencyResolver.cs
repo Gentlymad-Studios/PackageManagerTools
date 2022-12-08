@@ -2,18 +2,14 @@
 using System.Linq;
 using UnityEditor;
 using UnityEditor.PackageManager;
-using static PackageManagerTools.GitChangeDetector;
 using static PackageManagerTools.Settings;
 
 namespace PackageManagerTools {
     /// <summary>
     /// This class resolves git based dependencies from packages hosted on github, etc.
-    /// This allows to define 
     /// </summary>
     [InitializeOnLoad]
     internal static class GitDependencyResolver {
-        private static GitChangeDetector changeDetector = new GitChangeDetector(OnChangeDetected);
-
         static GitDependencyResolver() {
             Log("Init");
 
@@ -23,28 +19,6 @@ namespace PackageManagerTools {
             //Events.registeringPackages -= RegisteringPackagesEventHandler;
             //Events.registeringPackages += RegisteringPackagesEventHandler;
 
-        }
-
-        [MenuItem(updateGitPackagesMenu)]
-        private static void UpdateGitDependencies() {
-            (new ListCommand(UpdateGitDependenciesForPackages)).Execute(); 
-        }
-         
-        private static void UpdateGitDependenciesForPackages(List<AdvancedPackageInfo> packages) {
-            changeDetector.Execute(packages);
-        }
-
-        private static void OnChangeDetected(GitChangeDetectorResult changeDetectorResult) {
-            // Update all packages that actually need an update
-            if (changeDetectorResult.packagesToAdd.Count > 0) {
-                Client.AddAndRemove(changeDetectorResult.packagesToAdd.ToArray());
-            }
-            // display all messages
-            if (changeDetectorResult.messages.Count > 0) {
-                for (int i=0; i< changeDetectorResult.messages.Count; i++) {
-                    LogAlways(changeDetectorResult.messages[i]);
-                }
-            }
         }
 
         /// <summary>
@@ -97,6 +71,8 @@ namespace PackageManagerTools {
             if(packageRegistrationEventArgs.added != null && packageRegistrationEventArgs.added.ToArray().Length > 0) {
                 (new ListCommand(AddDependenciesForPackages)).Execute();
             }
+            // detect package updates
+            GitUpdateController.DetectPackageUpdates();
         }
 
     }

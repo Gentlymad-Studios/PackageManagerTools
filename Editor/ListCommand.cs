@@ -25,6 +25,7 @@ namespace PackageManagerTools {
 
         public void Execute() {
             if (!isExecuting) {
+                //UnityEngine.Debug.Log("firing");
                 isExecuting = true;
                 request = Client.List();
                 EditorApplication.update += EditorTick;
@@ -35,6 +36,7 @@ namespace PackageManagerTools {
             if (request.IsCompleted) {
                 // unsubscribe from the editor tick early on so we won't fire to eternity of there is an error.
                 EditorApplication.update -= EditorTick;
+                isExecuting = false;
 
                 if (request.Status == StatusCode.Success) {
                     if (request.Result != null) {
@@ -54,6 +56,7 @@ namespace PackageManagerTools {
                     }
                 } else if (request.Status >= StatusCode.Failure) {
                     LogAlways(request.Error.message);
+
                 }
             }
         }

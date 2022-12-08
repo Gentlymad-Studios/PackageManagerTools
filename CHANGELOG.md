@@ -20,3 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internal refactoring and tidying up of the code base
 - Update detection is now fully functional and offloaded to its own thread
 
+## [0.0.4] - 2022-12-08
+### Added
+- Created editor window to manage git package updates
+- The link for version checking can now be declared in the package.json as "custom_packageJsonLink"
+- The link for git dependencies is now done via "custom_gitDependencies" in package.json
+- More refactoring and tidying up
