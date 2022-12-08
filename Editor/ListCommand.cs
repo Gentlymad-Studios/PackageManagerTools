@@ -5,11 +5,15 @@ using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
+using static PackageManagerTools.Settings;
 
 namespace PackageManagerTools {
+    /// <summary>
+    /// Wrapper class to handle the package managers list command and only operate on git specific packages.
+    /// With this we decouple ourselves to interfere with ane packages or depedency resolvement, except git.
+    /// This makes sense as the package manager is otherwise very capable of resolving any other depedencies except git stuff...
+    /// </summary>
     internal class ListCommand {
-        private const string unitySpecificPackagePartial = "com.unity";
-        private const string packageJson = "package.json";
 
         private ListRequest request;
         public Action<List<AdvancedPackageInfo>> OnPackageListRetrieved;
@@ -29,6 +33,7 @@ namespace PackageManagerTools {
 
         private void EditorTick() {
             if (request.IsCompleted) {
+                // unsubscribe from the editor tick early on so we won't fire to eternity of there is an error.
                 EditorApplication.update -= EditorTick;
 
                 if (request.Status == StatusCode.Success) {
@@ -48,7 +53,7 @@ namespace PackageManagerTools {
                         OnPackageListRetrieved?.Invoke(packageInfos);
                     }
                 } else if (request.Status >= StatusCode.Failure) {
-                    GitDependencyResolver.Log(request.Error.message);
+                    LogAlways(request.Error.message);
                 }
             }
         }

@@ -15,3 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ability to manually update all git packages
 - Checked for package type, so we only operate on git packages
 
+## [0.0.3] - 2022-12-08
+### Added
+- Internal refactoring and tidying up of the code base
+- Update detection is now fully functional and offloaded to its own thread
+

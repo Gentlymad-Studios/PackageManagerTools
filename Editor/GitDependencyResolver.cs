@@ -1,86 +1,64 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
 using UnityEditor;
 using UnityEditor.PackageManager;
-using PackageInfo = UnityEditor.PackageManager.PackageInfo;
+using static PackageManagerTools.GitChangeDetector;
+using static PackageManagerTools.Settings;
 
 namespace PackageManagerTools {
+    /// <summary>
+    /// This class resolves git based dependencies from packages hosted on github, etc.
+    /// This allows to define 
+    /// </summary>
     [InitializeOnLoad]
     internal static class GitDependencyResolver {
-        private const string repoExtenstion = ".git";
-        private const string packageJson = "package.json";
-        private const string pathPartialToPackageJson = "/blob/master/" + packageJson;
-
-        private const string logHeader = "<b><color=#2E8B57>"+nameof(GitDependencyResolver) +"</color></b> ";
-
-        [System.Diagnostics.Conditional("TOOLS_DEBUG")]
-        public static void Log(string format, params object[] args) {
-            UnityEngine.Debug.LogFormat(logHeader + format, args);
-        }
+        private static GitChangeDetector changeDetector = new GitChangeDetector(OnChangeDetected);
 
         static GitDependencyResolver() {
             Log("Init");
 
+            // hook up with the package manager events
             Events.registeredPackages -= RegisteredPackagesEventHandler;
             Events.registeredPackages += RegisteredPackagesEventHandler;
-            Events.registeringPackages -= RegisteringPackagesEventHandler;
-            Events.registeringPackages += RegisteringPackagesEventHandler;
+            //Events.registeringPackages -= RegisteringPackagesEventHandler;
+            //Events.registeringPackages += RegisteringPackagesEventHandler;
 
         }
 
-        [MenuItem("Tools/UpdateGitDependencies")]
+        [MenuItem(updateGitPackagesMenu)]
         private static void UpdateGitDependencies() {
             (new ListCommand(UpdateGitDependenciesForPackages)).Execute(); 
         }
          
-        public class MiniPackageInfo {
-            public string version;
-        }
-
         private static void UpdateGitDependenciesForPackages(List<AdvancedPackageInfo> packages) {
-            List<string> packagesToAdd = new List<string>();
-            string[] internalVersion;
-            foreach (AdvancedPackageInfo info in packages) {
+            changeDetector.Execute(packages);
+        }
 
-                string gitUrl = info.main.packageId.Split("@")[1];
-                gitUrl = gitUrl.Substring(0,gitUrl.Length - 4);
-                string packageJsonUrl = gitUrl.Replace("github.com", "raw.githubusercontent.com");
-                packageJsonUrl += pathPartialToPackageJson.Replace("blob/", "");
-                internalVersion = info.main.version.Split(".");
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(packageJsonUrl);
-                request.Method = "GET";
-                request.ContentType = "application/json";
-                WebResponse response = request.GetResponse();
-                string responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                MiniPackageInfo remotePackageInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<MiniPackageInfo>(responseString);
-
-                string[] remoteVersion = remotePackageInfo.version.Split(".");
-
-                for(int i=0; i < 3; i++) {
-                    if (int.Parse(remoteVersion[i]) > int.Parse(internalVersion[i])) {
-                        packagesToAdd.Add(gitUrl + repoExtenstion);
-                        UnityEngine.Debug.Log($"Package: [{info.main.name}] detected newer version on github! {info.main.version} < {remotePackageInfo.version}");
-                        break;
-                    }
-                }
-
+        private static void OnChangeDetected(GitChangeDetectorResult changeDetectorResult) {
+            // Update all packages that actually need an update
+            if (changeDetectorResult.packagesToAdd.Count > 0) {
+                Client.AddAndRemove(changeDetectorResult.packagesToAdd.ToArray());
             }
-            if (packagesToAdd.Count > 0) {
-                Client.AddAndRemove(packagesToAdd.ToArray());
+            // display all messages
+            if (changeDetectorResult.messages.Count > 0) {
+                for (int i=0; i< changeDetectorResult.messages.Count; i++) {
+                    LogAlways(changeDetectorResult.messages[i]);
+                }
             }
         }
 
+        /// <summary>
+        /// Gather all depedencies for the given packages and add them to the package manager.
+        /// </summary>
+        /// <param name="packages">The package infos</param>
         private static void AddDependenciesForPackages(List<AdvancedPackageInfo> packages) {
             List<string> packagesToAdd = new List<string>();
             
             foreach (AdvancedPackageInfo package in packages) {
                 if (package.custom.gitDependencies != null) {
                     foreach (KeyValuePair<string, string> gitDependency in package.custom.gitDependencies) {
-                        bool packageAlreadyPresent = packages.Any(x => x.main.name == gitDependency.Key);
+                        bool packageAlreadyPresent = packages.Any(x => x.@base.name == gitDependency.Key);
+                        // make sure the dependency is not already in the list of installedPackages & not in the list of packages to install
                         if (!packageAlreadyPresent && !packagesToAdd.Any(x => x == gitDependency.Value)) {
                             packagesToAdd.Add(gitDependency.Value);
                         }
@@ -95,6 +73,7 @@ namespace PackageManagerTools {
             }
         }
 
+        /*
         // The method is expected to receive a PackageRegistrationEventArgs event argument.
         private static void RegisteringPackagesEventHandler(PackageRegistrationEventArgs packageRegistrationEventArgs) {
             Log("The list of registered packages is about to change!");
@@ -108,11 +87,13 @@ namespace PackageManagerTools {
             }
 
         }
+        */
 
         private static void RegisteredPackagesEventHandler(PackageRegistrationEventArgs packageRegistrationEventArgs) {
             // Code executed here can safely assume that the Editor has finished compiling the new list of packages
             Log("The list of registered packages has changed!");
 
+            // react only for added packages, we don't want to run if packages are removed.
             if(packageRegistrationEventArgs.added != null && packageRegistrationEventArgs.added.ToArray().Length > 0) {
                 (new ListCommand(AddDependenciesForPackages)).Execute();
             }
