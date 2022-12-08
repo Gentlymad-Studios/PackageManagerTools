@@ -2,4 +2,4 @@ Package Manager Tools to automate some Unity package manager tasks and fill in s
 
 Features
 - git dependency resolving
-- automatic git package updates by checking the remote
+- automatic git package updates by checking the remote (WIP, currently only actions based)
