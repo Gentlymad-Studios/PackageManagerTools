@@ -50,8 +50,10 @@ namespace PackageManagerTools {
                 }
             }
 
-            // Make sure to repaint the window
-            GitUpdateWindow.ForceRepaint();
+            if (changeDetectorResult.packagesToUpdate.Count > 0) {
+                // Make sure to repaint the window
+                GitUpdateWindow.ForceRepaint();
+            }
         }
     }
 }

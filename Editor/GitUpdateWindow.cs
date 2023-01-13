@@ -12,7 +12,7 @@ namespace PackageManagerTools {
         private bool stylesInitialized = false;
         private HashSet<string> selectedPackages = new HashSet<string>();
         private GUIStyle richTextLabelStyle = null;
-        private Vector2 scrollPos;
+        private Vector2 scrollPos; 
         // Add menu named "My Window" to the Window menu
         [MenuItem(updateGitPackagesMenu)]
         private static void Init() {
@@ -90,10 +90,13 @@ namespace PackageManagerTools {
             }
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+ 
         }
 
-        public static void ForceRepaint() {
-            ((GitUpdateWindow)GetWindow(typeof(GitUpdateWindow))).Repaint();
+        public static void ForceRepaint() { 
+            if (HasOpenInstances<GitUpdateWindow>()) {
+                ((GitUpdateWindow)GetWindow(typeof(GitUpdateWindow))).Repaint();
+            } 
         }
     }
 }

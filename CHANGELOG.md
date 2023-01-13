@@ -26,3 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The link for version checking can now be declared in the package.json as "custom_packageJsonLink"
 - The link for git dependencies is now done via "custom_gitDependencies" in package.json
 - More refactoring and tidying up
+
+## [0.0.5] - 2023-01-13
+### Fixed
+- force repaint window only if it is currently opened (prevent automatic opening of window)
+- force repaint is now only triggered if there are package updates
+
