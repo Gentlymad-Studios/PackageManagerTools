@@ -36,3 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - fixed a potentially too early call to the package manager API
 
+## [0.0.7] - 2023-02-21
+### Added
+- added option to create a Blacklist where you can define a list of packages that should never be resolved

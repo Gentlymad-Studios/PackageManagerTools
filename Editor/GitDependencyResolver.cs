@@ -31,10 +31,13 @@ namespace PackageManagerTools {
             foreach (AdvancedPackageInfo package in packages) {
                 if (package.custom.gitDependencies != null) {
                     foreach (KeyValuePair<string, string> gitDependency in package.custom.gitDependencies) {
-                        bool packageAlreadyPresent = packages.Any(x => x.@base.name == gitDependency.Key);
-                        // make sure the dependency is not already in the list of installedPackages & not in the list of packages to install
-                        if (!packageAlreadyPresent && !packagesToAdd.Any(x => x == gitDependency.Value)) {
-                            packagesToAdd.Add(gitDependency.Value);
+                        // make sure the dependency is not part of our blacklist
+                        if (Blacklist.Instance == null || !Blacklist.Instance.blacklist.Contains(gitDependency.Key)) {
+                            bool packageAlreadyPresent = packages.Any(x => x.@base.name == gitDependency.Key);
+                            // make sure the dependency is not already in the list of installedPackages & not in the list of packages to install
+                            if (!packageAlreadyPresent && !packagesToAdd.Any(x => x == gitDependency.Value)) {
+                                packagesToAdd.Add(gitDependency.Value);
+                            }
                         }
                     }
                 } else {
