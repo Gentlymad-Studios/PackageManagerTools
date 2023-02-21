@@ -14,12 +14,9 @@ namespace PackageManagerTools {
         public static List<GitUpdatePackageInfo> packagesNeedingUpdate = new List<GitUpdatePackageInfo>();
 
         static GitUpdateController() {
-            DetectPackageUpdates();
-
             EditorApplication.update -= EditorTick;
             EditorApplication.update += EditorTick;
         }
-
 
         private static void EditorTick() {
             if (EditorApplication.timeSinceStartup > nextAllowedTick) {

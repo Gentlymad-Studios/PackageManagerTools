@@ -32,3 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - force repaint window only if it is currently opened (prevent automatic opening of window)
 - force repaint is now only triggered if there are package updates
 
+## [0.0.6] - 2023-02-21
+### Fixed
+- fixed a potentially too early call to the package manager API
+
