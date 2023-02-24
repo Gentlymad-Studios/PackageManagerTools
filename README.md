@@ -1,4 +1,12 @@
-**Package Manager Tools** to automate some Unity package manager tasks and fill in some feature gaps.
+# Package Manager Tools
+
+![Version](https://img.shields.io/github/package-json/v/Gentlymad-Studios/PackageManagerTools)
+![GitHub last commit](https://img.shields.io/github/last-commit/Gentlymad-Studios/PackageManagerTools)
+![GitHub](https://img.shields.io/github/license/Gentlymad-Studios/PackageManagerTools)
+![GitHub issues](https://img.shields.io/github/issues-raw/Gentlymad-Studios/PackageManagerTools)
+
+This package helps to automate some Unity package manager tasks and fill in some feature gaps.
+
 ![gitupdate](https://user-images.githubusercontent.com/530629/206590096-63bd0417-e6f9-43fd-bfdc-3481455abebb.png)
 
 *Picture of the git update window that lists any outstanding git package updates.*
@@ -17,13 +25,13 @@
 ## Installation
 1. Add [https://github.com/Gentlymad-Studios/PackageManagerTools.git](https://github.com/Gentlymad-Studios/PackageManagerTools.git) as a git url to your unity project using the standard package manager
 2. Add git dependencies to the `package.json` you want to use. The syntax for this is like so:
-```
+```json
 "custom_gitDependencies": {
   "com.gentlymadstudios.editorui": "https://github.com/Gentlymad-Studios/EditorUI.git"
 },
 ```
 3. If you are not using github, specifiy a link in you package.json where the system can retrieve the `package.json` for remote version checking.
-```
+```json
 "custom_packageJsonLink": "https://raw.githubusercontent.com/Gentlymad-Studios/EditorHelper/master/package.json",
 ```
 4. Add your git packages via the package manager as usual.
