@@ -49,4 +49,4 @@ This is useful in cases where a dependency might already be available in your pr
 2. Create a new entry by clicking on the '+' icon of the list.
 3. Add the unique identifier of a package (example: com.gentlymad.odinserializer) to exclude when dependencies should be resolved.
 
-~ Use at you own risk. ~
+~ Use at your own risk. ~
