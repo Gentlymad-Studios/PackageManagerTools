@@ -44,7 +44,7 @@ namespace PackageManagerTools {
                         List<AdvancedPackageInfo> packageInfos = new List<AdvancedPackageInfo>();
                         foreach(PackageInfo package in request.Result) {
                             //ignore all unity based packages, as we know those won't have git dependencies
-                            if (package.source != PackageSource.Git || package.name.IndexOf(unitySpecificPackagePartial) != -1) {
+                            if (package.source != PackageSource.Git && package.source != PackageSource.Local|| package.name.IndexOf(unitySpecificPackagePartial) != -1) {
                                 continue;
                             }
 
